@@ -1,0 +1,18 @@
+name: DemoApp
+options:
+  createIntermediateGroups: true
+  xcodeprojPath: DemoApp/DemoApp.xcodeproj
+targets:
+  DemoApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "13.0"
+    bundleId: com.matheusquirino.demoapp
+    sources:
+      - path: DemoApp/Sources
+      - path: SupportingFiles
+        type: folder
+        excludes:
+          - Info.plist
+    info:
+      path: SupportingFiles/Info.plist
