@@ -27,12 +27,20 @@ public class HeavyMetalExpressionBuilder {
         self.type = type
     }
     
-    func buildAssignment() -> String {
+    func buildAssignment(type: Character = ".") -> String {
         guard let value else {
             print("HeavyMetalExpressionBuilder: Invalid or null VALUE passed to variable '\(name)' definition.")
             return ""
         }
-        return "\(name) = \(value);"
+        
+        switch type {
+        case "+":
+            return "\(name) += \(value);"
+        case "-":
+            return "\(name) -= \(value);"
+        default:
+            return "\(name) = \(value);"
+        }
     }
     
     func build() -> String {

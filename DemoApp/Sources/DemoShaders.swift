@@ -32,14 +32,13 @@ enum DemoShaders: CaseIterable {
                 .float(.named("c3").expression("0.5 + 0.5 * sin(3.0 * v + t + 4.0)"))
                 .float3(.named("color").expression("c1, c2, c3"))
             
-                .build(expression: "color, 1.0")
+                .build(float4expr: "color, 1.0")
             
         case .goldenFlames:
             HeavyMetal.shaderBuilder()
                 .float2(.named("uv2").expression("uv"))
-                .code("uv2.y += time * 0.3;")
-                .code("uv2.x += sin(uv2.y * 8.0 + time * 2.0) * 0.1;")
-                .code("uv2.x += sin(uv2.y * 18.0 + time * 5.0) * 0.05;")
+                .increment(.named("uv2.y").expression("time * 0.3"))
+                .increment(.named("uv2.x").expression("sin(uv2.y * 18.0 + time * 5.0) * 0.05"))
 
                 .float(.named("noiseX").expression("sin((uv2.x + time * 0.5) * 10.0)"))
                 .float(.named("noiseY").expression("sin((uv2.y + time * 0.3) * 20.0)"))
@@ -55,20 +54,20 @@ enum DemoShaders: CaseIterable {
                 .float(.named("tipIntensity").expression("pow(flameMask, 8.0)"))
                 .float3(.named("finalColor").expression("mix(warmColor, topColor, tipIntensity)"))
 
-                .build(expression: "finalColor * flameMask, flameMask")
+                .build(float4expr: "finalColor * flameMask, flameMask")
 
 
             
         case .checkerboard:
             HeavyMetal.shaderBuilder()
-                .float2(.named("uvs").expression("uv * float2(5.0, 10.0)")) // Notice 10.0 instead of 5.0 on Y
-                .code("uvs += time * 0.5;")
+                .float2(.named("uvs").expression("uv * float2(5.0, 10.0)"))
+                .increment(.named("uvs").expression("time * 0.5"))
             
                 .float(.named("checker").expression("step(0.5, fract(uvs.x)) + step(0.5, fract(uvs.y))"))
                 .assign(.named("checker").expression("fmod(checker, 2.0)"))
             
                 .float(.named("cv").expression("checker > 0.5 ? 1 : 0"))
-                .build(expression: "cv, cv, cv, 1")
+                .build(float4expr: "cv, cv, cv, 1")
             
         case .pulsatingRadial:
             HeavyMetal.shaderBuilder()
@@ -76,7 +75,7 @@ enum DemoShaders: CaseIterable {
                 .float(.named("dist").expression("length(uvc)"))
                 .float(.named("pulse").expression("sin(time * 5.0) * 0.5 + 0.5"))
                 .float(.named("intensity").expression("smoothstep(0.2 + 0.1 * pulse, 0.0, dist)"))
-                .build(expression: "intensity, intensity, intensity, 1.0")
+                .build(float4expr: "intensity, intensity, intensity, 1.0")
             
         case .scrollingWaves:
             HeavyMetal.shaderBuilder()
@@ -88,7 +87,7 @@ enum DemoShaders: CaseIterable {
                 .float(.named("c2").expression("0.5 + 0.5 * sin(rings + 2.0)"))
                 .float(.named("c3").expression("0.5 + 0.5 * sin(rings + 4.0)"))
             
-                .build(expression: "c1, c2, c3, 1")
+                .build(float4expr: "c1, c2, c3, 1")
             
         }
     }

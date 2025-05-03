@@ -28,6 +28,14 @@ public class HeavyMetalShaderBuilder {
         code(expressionBuilder.buildAssignment())
         return self
     }
+    public func increment(_ expressionBuilder: HeavyMetalExpressionBuilder) -> Self {
+        code(expressionBuilder.buildAssignment(type: "+"))
+        return self
+    }
+    public func decrement(_ expressionBuilder: HeavyMetalExpressionBuilder) -> Self {
+        code(expressionBuilder.buildAssignment(type: "-"))
+        return self
+    }
     public func header(_ code: String) -> Self {
         headers.append(code)
         return self
@@ -49,7 +57,7 @@ public class HeavyMetalShaderBuilder {
         return self
     }
     
-    public func build(expression: String) -> HeavyMetalShader {
+    public func build(float4expr: String) -> HeavyMetalShader {
         var shaderParts: [String] = []
         
         if !headers.isEmpty {
@@ -66,7 +74,7 @@ public class HeavyMetalShaderBuilder {
         """)
         
         shaderParts.append(bodyLines.joined(separator: "\n"))
-        shaderParts.append("return float4(\(expression));")
+        shaderParts.append("return float4(\(float4expr));")
         shaderParts.append("}") // close pixel_main
         
         print("@>> SHADER SCRIPT: \(shaderParts.joined(separator: "\n\n"))")
@@ -74,6 +82,6 @@ public class HeavyMetalShaderBuilder {
     }
     
     public func build(float4: HeavyMetalExpressionBuilder) -> HeavyMetalShader {
-        return build(expression: float4.build())
+        return build(float4expr: float4.build())
     }
 }
