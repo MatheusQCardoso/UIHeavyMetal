@@ -1,0 +1,34 @@
+name: Tag on Master Push
+on:
+  push:
+    branches:
+      - master
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Extract version from podspec
+        id: get_version
+        run: |
+          VERSION=$(grep -E "s.version\s*=" *.podspec | sed -E "s/.*= *[\"']([^\"']+)[\"']/\1/")
+          echo "Version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create tag
+        run: |
+          TAG="v${{ steps.get_version.outputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists. Skipping."
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+      
