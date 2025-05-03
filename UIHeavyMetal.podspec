@@ -11,4 +11,5 @@ Pod::Spec.new do |s|
 	s.source           = { :git => 'https://github.com/MatheusQCardoso/UIHeavyMetal.git', :tag => s.version.to_s }
 	s.ios.deployment_target = '13.0'
 	s.source_files = 'UIHeavyMetal/**/*.{h,m,swift}' # Adjust this path based on your structure
+	s.swift_version = '5.0'
 end
