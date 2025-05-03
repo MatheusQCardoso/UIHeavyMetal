@@ -10,9 +10,8 @@ targets:
     bundleId: com.matheusquirino.demoapp
     sources:
       - path: DemoApp/Sources
-      - path: SupportingFiles
-        type: folder
+      - path: DemoApp/Config
         excludes:
           - Info.plist
-    info:
-      path: SupportingFiles/Info.plist
+    #info:
+      #path: Config/Info.plist
