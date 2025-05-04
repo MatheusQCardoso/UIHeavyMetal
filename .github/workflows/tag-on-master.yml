@@ -1,8 +1,13 @@
 name: Tag on Master Push
+
 on:
   push:
     branches:
       - master
+
+permissions:
+  contents: write
+
 jobs:
   tag:
     runs-on: ubuntu-latest
@@ -22,13 +27,16 @@ jobs:
           echo "Version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Authenticate with GitHub using GITHUB_TOKEN
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
       - name: Create tag
         run: |
-          TAG="v${{ steps.get_version.outputs.version }}"
+          TAG="${{ steps.get_version.outputs.version }}"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists. Skipping."
           else
             git tag "$TAG"
             git push origin "$TAG"
           fi
-      
