@@ -10,15 +10,15 @@ import UIHeavyMetal
 
 class ShadeDemoViewController: UIViewController {
     
-    lazy var shaderView: HeavyMetalShaderView = {
-        let shaderView = HeavyMetalShaderView(shader: self.shader)
+    lazy var shaderView: UIHeavyMetalShaderView = {
+        let shaderView = UIHeavyMetalShaderView(shader: self.shader)
         shaderView.translatesAutoresizingMaskIntoConstraints = false
         return shaderView
     }()
     
-    let shader: HeavyMetalShader
+    let shader: UIHeavyMetalShader
     
-    init(shader: HeavyMetalShader) {
+    init(shader: UIHeavyMetalShader) {
         self.shader = shader
         super.init(nibName: nil, bundle: nil)
     }

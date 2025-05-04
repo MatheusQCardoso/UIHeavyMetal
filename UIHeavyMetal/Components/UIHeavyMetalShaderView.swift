@@ -1,5 +1,5 @@
 //
-//  HeavyMetalShaderView.swift
+//  UIHeavyMetalShaderView.swift
 //  TesteUIKit
 //
 //  Created by Matheus Quirino Cardoso on 26/04/25.
@@ -9,12 +9,15 @@ import UIKit
 import Metal
 import MetalKit
 
-public class HeavyMetalShaderView: UIView {
+/**
+ A UIView subclass that renders (Heavy)Metal shaders.
+ */
+public class UIHeavyMetalShaderView: UIView {
     
     private var device: MTLDevice!
     private var commandQueue: MTLCommandQueue!
     private var metalLayer: CAMetalLayer!
-    private var pipelineState: MTLRenderPipelineState!
+    private var pipelineState: MTLRenderPipelineState?
     private var shaderSource: String
     private var displayLink: CADisplayLink?
     private var startTime: CFTimeInterval = 0
@@ -23,7 +26,13 @@ public class HeavyMetalShaderView: UIView {
     private var targetFPS: Int
     private var lastUpdateTime: CFTimeInterval = 0
     
-    public init(shader: HeavyMetalShader, targetFPS: Int = 24) {
+    /**
+         Initializes a new instance of UIHeavyMetalShaderView with an existing UIHeavyMetalShader.
+         - Parameters:
+           - shader: The shader object containing Metal source code.
+           - targetFPS: Desired frame rate for rendering updates. Default is 24.
+         */
+    public init(shader: UIHeavyMetalShader, targetFPS: Int = 24) {
         self.shaderSource = shader.sourceCode
         self.targetFPS = targetFPS
         super.init(frame: .zero)
@@ -55,8 +64,8 @@ public class HeavyMetalShaderView: UIView {
     }
     
     private func setup() {
-        device = HeavyMetal.shared.device
-        commandQueue = HeavyMetal.shared.commandQueue
+        device = UIHeavyMetal.shared.device
+        commandQueue = UIHeavyMetal.shared.commandQueue
         
         metalLayer = self.layer as? CAMetalLayer
         metalLayer.device = device
@@ -64,14 +73,12 @@ public class HeavyMetalShaderView: UIView {
         metalLayer.contentsScale = UIScreen.main.scale
         
         createUniformBuffer()
-        loadShader()
+        compileShader()
     }
     
     private func startDisplayLink() {
         startTime = CACurrentMediaTime()
         displayLink = CADisplayLink(target: self, selector: #selector(redraw))
-        
-        // Set display link frame rate based on target FPS
         displayLink?.preferredFramesPerSecond = targetFPS
         displayLink?.add(to: .main, forMode: .default)
     }
@@ -85,8 +92,8 @@ public class HeavyMetalShaderView: UIView {
         uniformsBuffer = device.makeBuffer(length: bufferSize, options: [])
     }
     
-    private func loadShader() {
-        let fullSource = HeavyMetalShaderView.vertexShaderSource + shaderSource
+    private func compileShader() {
+        let fullSource = UIHeavyMetalConstants.vertexShaderBaseSource + shaderSource
         
         do {
             let library = try device.makeLibrary(source: fullSource, options: nil)
@@ -99,19 +106,25 @@ public class HeavyMetalShaderView: UIView {
             pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
             
             pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+            
+            if pipelineState == nil {
+                throw UIHeavyMetalError.failedToInitializePipelineState(shaderSource: shaderSource)
+            }
         } catch {
-            print("Failed to compile Metal shader: \(error)")
+            if let heavyMetalError = error as? UIHeavyMetalError {
+                UIHeavyMetal.log(ofType: .error, message: "\(error.localizedDescription)")
+                UIHeavyMetal.error(heavyMetalError)
+            } else {
+                UIHeavyMetal.log(ofType: .error, message: "Compilation Error: `\(error.localizedDescription)`")
+                UIHeavyMetal.error(.shaderCompilationError(stackTrace: error.localizedDescription))
+            }
         }
     }
     
     @objc private func redraw() {
-        // Calculate elapsed time since last update
         let currentTime = CACurrentMediaTime()
         let elapsedTime = currentTime - lastUpdateTime
-        
-        // Only update based on the desired FPS
         let targetInterval = 1.0 / Double(targetFPS)
-        
         if elapsedTime >= targetInterval {
             guard let drawable = metalLayer.nextDrawable() else { return }
             
@@ -126,6 +139,8 @@ public class HeavyMetalShaderView: UIView {
             guard let commandBuffer = commandQueue.makeCommandBuffer(),
                   let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else { return }
             
+            guard let pipelineState else { return }
+            
             renderEncoder.setRenderPipelineState(pipelineState)
             
             renderEncoder.setVertexBuffer(uniformsBuffer, offset: 0, index: 1)
@@ -137,7 +152,6 @@ public class HeavyMetalShaderView: UIView {
             commandBuffer.present(drawable)
             commandBuffer.commit()
             
-            // Update the last time we drew
             lastUpdateTime = currentTime
         }
     }
@@ -151,38 +165,7 @@ public class HeavyMetalShaderView: UIView {
     }
 }
 
-private struct Uniforms {
+fileprivate struct Uniforms {
     var time: Float
     var resolution: SIMD2<Float>
-}
-
-extension HeavyMetalShaderView {
-    static let vertexShaderSource = """
-    using namespace metal;
-    #include <metal_stdlib>
-
-    struct VertexOut {
-        float4 position [[position]];
-        float2 uv;
-    };
-
-    struct Uniforms {
-        float time;
-        float2 resolution;
-    };
-
-    vertex VertexOut vertex_main(uint vertexID [[vertex_id]],
-                                  constant Uniforms &uniforms [[buffer(1)]]) {
-        float2 positions[3] = {
-            float2(-1.0, -1.0),
-            float2( 3.0, -1.0),
-            float2(-1.0,  3.0)
-        };
-        
-        VertexOut out;
-        out.position = float4(positions[vertexID], 0.0, 1.0);
-        out.uv = (positions[vertexID] + 1.0) * 0.5;
-        return out;
-    }
-    """
 }

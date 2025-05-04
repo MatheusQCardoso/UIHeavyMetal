@@ -7,7 +7,10 @@
 
 import Foundation
 
-public class HeavyMetalExpressionBuilder {
+/**
+ A builder for constructing expressions used in UIHeavyMetal shaders.
+ */
+public class UIHeavyMetalExpressionBuilder {
     
     private let name: String
     private var preffixLines: [String] = []
@@ -17,10 +20,6 @@ public class HeavyMetalExpressionBuilder {
     
     private init(name: String) {
         self.name = name
-    }
-    
-    public static func named(_ name: String) -> HeavyMetalExpressionBuilder {
-        return HeavyMetalExpressionBuilder(name: name)
     }
     
     func setType(_ type: String) {
@@ -70,13 +69,38 @@ public class HeavyMetalExpressionBuilder {
     }
 }
 
-extension HeavyMetalExpressionBuilder {
+extension UIHeavyMetalExpressionBuilder {
+    
+    // MARK: - PUBLIC
+    
+    /**
+     Creates a new expression builder with the given name.
+     - Parameter name: The variable name to bind the expression to.
+     - Returns: An initialized builder instance.
+     */
+    public static func named(_ name: String) -> UIHeavyMetalExpressionBuilder {
+        return UIHeavyMetalExpressionBuilder(name: name)
+    }
+    
+    /**
+     Sets the main value expression to assign.
+     - Parameter expression: A Metal-compatible expression string.
+     - Returns: The builder instance.
+     */
     @discardableResult
     public func expression(_ expression: String) -> Self {
         self.value = expression
         return self
     }
     
+    /**
+     Creates a circle-shaped smoothstep expression at a position with radius.
+     - Parameters:
+       - center: A SIMD2<Float> indicating the circle center.
+       - radius: The radius of the circle.
+       - smoothEdge: Whether to apply smoothstep (true) or step (false).
+     - Returns: The builder instance.
+     */
     @discardableResult
     public func circle(at center: SIMD2<Float>, radius: Float, smoothEdge: Bool = true) -> Self {
         let smooth = smoothEdge ? "smoothstep" : "step"
@@ -90,18 +114,37 @@ extension HeavyMetalExpressionBuilder {
         return self
     }
     
+    /**
+     Generates a wave expression oscillating along the X axis.
+     - Parameters:
+       - frequency: Frequency of the wave.
+       - speed: Speed of time progression.
+     - Returns: The builder instance.
+     */
     @discardableResult
     public func waveX(frequency: Float = 10.0, speed: Float = 1.0) -> Self {
         self.value = "sin(uv.x * \(frequency) + time * \(speed))"
         return self
     }
     
+    /**
+     Generates a wave expression oscillating along the Y axis.
+     - Parameters:
+       - frequency: Frequency of the wave.
+       - speed: Speed of time progression.
+     - Returns: The builder instance.
+     */
     @discardableResult
     public func waveY(frequency: Float = 10.0, speed: Float = 1.0) -> Self {
         self.value = "sin(uv.y * \(frequency) + time * \(speed))"
         return self
     }
     
+    /**
+     Creates a simple 2D noise function based on sine and dot product.
+     - Parameter scale: Scale multiplier for UV coordinates.
+     - Returns: The builder instance.
+     */
     @discardableResult
     public func noise2D(scale: Float = 10.0) -> Self {
         let preffixVarName = generateMetalValidVariableName()

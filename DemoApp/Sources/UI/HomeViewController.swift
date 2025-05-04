@@ -13,6 +13,23 @@ class HomeViewController: UIViewController {
     let kButtonHeight: CGFloat = 40
     let kStackViewSpacing: CGFloat = 20
     
+    lazy var topView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBackground
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    lazy var topTitle: UILabel = {
+        let view = UILabel()
+        view.text = "UIHeavyMetal"
+        view.textAlignment = .center
+        view.font = .systemFont(ofSize: 32, weight: .bold)
+        view.textColor = .black
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     lazy var scrollView: UIScrollView = {
         let view = UIScrollView()
         view.isScrollEnabled = true
@@ -32,16 +49,37 @@ class HomeViewController: UIViewController {
         return view
     }()
     
+    lazy var bottomView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBackground
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    lazy var footerText: UILabel = {
+        let view = UILabel()
+        view.text = "by Matheus Quirino (MatheusQCardoso)\non LinkedIn and GitHub"
+        view.textAlignment = .center
+        view.font = .systemFont(ofSize: 14, weight: .bold)
+        view.textColor = .black
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     lazy var safeArea: UILayoutGuide = view.safeAreaLayoutGuide
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.addSubview(topView)/
+        topView.addSubview(topTitle)
         view.addSubview(scrollView)
         scrollView.addSubview(stackView)
+        view.addSubview(bottomView)
+        bottomView.addSubview(footerText)
         
-        for demoItem in DemoShaders.allCases {
-            let button = PreviewButton(text: String(describing: demoItem), onClick: { [weak self] in
+        for demoItem in DemoShaders.allCases.shuffled() {
+            let button = PreviewButton(text: demoItem.displayName, onClick: { [weak self] in
                 self?.navigationController?.pushViewController(ShadeDemoViewController(shader: demoItem.shader), animated: true)
             })
             NSLayoutConstraint.activate([
@@ -52,8 +90,18 @@ class HomeViewController: UIViewController {
         }
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: safeArea.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor),
+            topView.topAnchor.constraint(equalTo: view.topAnchor),
+            topView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            topView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            topView.heightAnchor.constraint(equalToConstant: 160.0),
+            
+            bottomView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            bottomView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            bottomView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            bottomView.heightAnchor.constraint(equalToConstant: 60.0),
+            
+            scrollView.topAnchor.constraint(equalTo: topView.bottomAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: bottomView.topAnchor),
             scrollView.leftAnchor.constraint(equalTo: view.leftAnchor),
             scrollView.rightAnchor.constraint(equalTo: view.rightAnchor),
             
@@ -61,8 +109,15 @@ class HomeViewController: UIViewController {
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            topTitle.leadingAnchor.constraint(equalTo: topView.leadingAnchor),
+            topTitle.trailingAnchor.constraint(equalTo: topView.trailingAnchor),
+            topTitle.bottomAnchor.constraint(equalTo: topView.bottomAnchor, constant: -8),
+            
+            footerText.leadingAnchor.constraint(equalTo: bottomView.leadingAnchor),
+            footerText.trailingAnchor.constraint(equalTo: bottomView.trailingAnchor),
+            footerText.topAnchor.constraint(equalTo: bottomView.topAnchor, constant: +8)
         ])
     }
     
