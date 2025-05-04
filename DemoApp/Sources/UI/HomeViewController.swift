@@ -71,7 +71,7 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.addSubview(topView)/
+        view.addSubview(topView)
         topView.addSubview(topTitle)
         view.addSubview(scrollView)
         scrollView.addSubview(stackView)
