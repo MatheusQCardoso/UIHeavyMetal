@@ -6,8 +6,11 @@ targets:
   DemoApp:
     type: application
     platform: iOS
-    deploymentTarget: "13.0"
+    deploymentTarget: "14.0"
     bundleId: com.matheusquirino.demoapp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.matheusquirino.demoapp
     sources:
       - path: DemoApp/Sources
       - path: DemoApp/Config

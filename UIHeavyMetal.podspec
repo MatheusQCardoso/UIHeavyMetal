@@ -1,9 +1,11 @@
 Pod::Spec.new do |s|
 	s.name             = 'UIHeavyMetal'
 	s.version          = '0.1.0'
-	s.summary          = '.'
+	s.summary          = 'A simple Metal shader development interface integrated to UIKit.'
 	s.description      = <<-DESC
 	A simple Metal shader development interface integrated to UIKit.
+	Provides for a clean, declarative-like way of writing your own Metal shaders and using
+	them in new or existing UIKit views.
 							DESC
 	s.homepage         = 'https://github.com/MatheusQCardoso/UIHeavyMetal'
 	s.license          = { :type => 'MIT', :file => 'LICENSE' }
